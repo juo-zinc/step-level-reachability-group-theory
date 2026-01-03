@@ -1,0 +1,493 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% Macros
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Ztwo}{\Z/2\Z}
+\newcommand{\Zthree}{\Z/3\Z}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\Stab}{\mathrm{Stab}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\angleset}{\mathcal{T}}
+\newcommand{\sdp}{\ltimes}
+
+\newcommand{\cyc}[1]{\left(#1\right)}
+
+\title{Step-Level Reachability of the U-Layer Corners under a Roux Block Stabilizer}
+\author{Jamie Guo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent We formalize a step-level notion of reachability for the CMLL stage in the Roux method:
+throughout the entire sequence, two $1\times 2\times 3$ blocks (left and right, spanning the D and
+middle layers) must remain fixed in both position and orientation. This constraint defines a subgroup
+$H$ of the Rubik's Cube group. We study the induced action of $H$ on the four U-layer corner cubies
+and define a natural ``corner projection'' homomorphism $\Phi$ onto a semidirect product
+$S_4 \sdp (\Zthree)^3$. We provide a group-theoretic surjectivity criterion for $\Phi(\langle S\rangle)$
+and show that, under mild explicit hypotheses on two block-preserving macro moves, the set of
+step-level reachable U-layer corner states has cardinality $|S_4|\cdot 3^3 = 648$.
+\end{abstract}
+
+\section{Introduction}
+
+In the CMLL stage of the Roux method, it is common to distinguish two notions of reachability.
+
+\begin{itemize}
+  \item \emph{Endpoint-only (global) reachability:} one only requires the existence of a cube state in which the
+  Roux blocks are solved and the U-layer corners realize a desired configuration; intermediate states are unconstrained.
+  \item \emph{Step-level reachability:} one starts from a state with solved Roux blocks and applies a sequence of allowed steps,
+  each step preserving the blocks throughout, ending at the desired U-layer corner configuration.
+\end{itemize}
+
+\noindent The second notion is the one consistent with the operational meaning of a ``CMLL step.''
+This note develops a concise group-theoretic framework for step-level reachability and reduces the problem
+to a small set of explicit macro moves whose verification may be carried out by hand tracking or by a short
+computation in the standard cubie model.
+
+\section{Cubie model and the Roux block stabilizer}
+
+\subsection{Cubie model: permutation and orientation data}
+
+\subsubsection*{Conventions on evaluation and indexing}
+We interpret move words in Singmaster notation as executed \emph{left-to-right}: a word $XY$ means ``perform $X$ and then $Y$.'' 
+All induced data below use the same convention. For the four U-layer corner positions $(T_0,T_1,T_2,T_3)$, we write
+$\tau_h\in S_4$ for the induced permutation, defined by
+\[
+\tau_h(i)=j \quad\Longleftrightarrow\quad \text{the corner cubie initially at position }T_i\text{ moves to }T_j\text{ after applying }h.
+\]
+We compose permutations in the same left-to-right order: $(\tau\sigma)(i):=\sigma(\tau(i))$.
+For twists, we record $t(h)=(t_0,t_1,t_2,t_3)\in(\Zthree)^4$ where $t_i(h)$ is the twist increment (mod $3$) of the
+corner cubie initially at $T_i$. With this convention, under concatenation one has
+\[
+t(hk)=t(h)+\tau_h\cdot t(k),\qquad (\tau\cdot x)_i:=x_{\tau(i)}.
+\]
+
+\begin{remark}[Sanity check for conventions]\label{rem:conventions}
+Fix $h,k\in G$. For a corner cubie initially at $T_i$, applying $h$ sends it to $T_{\tau_h(i)}$ and contributes twist $t_i(h)$.
+Applying $k$ next contributes twist $t_{\tau_h(i)}(k)$ to that same cubie. Hence the total twist increment is
+$t_i(h)+t_{\tau_h(i)}(k)$, which is exactly the $i$th coordinate of $t(h)+\tau_h\cdot t(k)$.
+\end{remark}
+
+
+
+\noindent We work in the standard cubie model of the $3\times 3$ Rubik's Cube group $G$.
+Let $C$ be the set of the $8$ \emph{corner positions} and $E$ the set of the $12$ \emph{edge positions}.
+For each $g\in G$ one may associate:
+\begin{itemize}
+  \item a corner-position permutation $\pi_C(g)\in \Sym(C)$ and a corner-orientation increment function
+  $\omega_C(g):C\to \Zthree$;
+  \item an edge-position permutation $\pi_E(g)\in \Sym(E)$ and an edge-orientation increment function
+  $\omega_E(g):E\to \Ztwo$.
+\end{itemize}
+Intuitively, $\pi_C(g)$ records where each corner position is sent, while $\omega_C(g)(p)$ records the twist
+increment (mod $3$) imparted to the corner cubie occupying position $p$ under $g$; similarly for edges with
+a flip increment mod $2$.
+
+\noindent For our purposes it suffices to use the following shorthand: a set of cubies is \emph{fixed pointwise and orientation-wise} if both its position permutation and its orientation increment are trivial on that set.
+
+\subsection{The Roux blocks}
+
+Fix the two $1\times 2\times 3$ Roux blocks as the left and right blocks occupying the D-layer and the middle layer.
+In cubie notation, we take:
+\begin{itemize}
+  \item Block corner cubies:
+  \[
+  B_C := \{\mathrm{DFL},\mathrm{DBL},\mathrm{DFR},\mathrm{DBR}\}.
+  \]
+  \item Block edge cubies:
+  \[
+  B_E := \{\mathrm{DL},\mathrm{FL},\mathrm{BL},\mathrm{DR},\mathrm{FR},\mathrm{BR}\}.
+  \]
+\end{itemize}
+Write $B:=(B_C,B_E)$.
+
+\subsection{Step-level subgroup}
+
+\begin{definition}[Roux block stabilizer]
+Define the \emph{block stabilizer} subgroup
+\[
+H := \Stab_G(B)
+\]
+to be the set of all $g\in G$ that fix every cubie in $B_C\cup B_E$ \emph{pointwise and orientation-wise}, i.e.
+\[
+\pi_C(g)(c)=c,\ \omega_C(g)(c)=0\ \ \forall c\in B_C,
+\qquad
+\pi_E(g)(e)=e,\ \omega_E(g)(e)=0\ \ \forall e\in B_E.
+\]
+\end{definition}
+
+\begin{lemma}
+$H$ is a subgroup of $G$.
+\end{lemma}
+\begin{proof}
+The identity fixes all cubies and orientations. If $g,h\in H$, then for each specified cubie the composition $gh$
+fixes its position and adds orientation changes $0+0=0$, hence $gh\in H$. Similarly $g^{-1}$ fixes the same cubies
+with inverse orientation change $0$, hence $g^{-1}\in H$.
+\end{proof}
+
+\begin{definition}[Allowed steps and step-level reachability]
+Let $S\subseteq H$ be a finite set of \emph{allowed steps} and let $\langle S\rangle\le H$ be the subgroup they generate.
+A U-layer corner configuration is \emph{step-level reachable (from a fixed reference state)} if it is realized by the action
+of some $h\in\langle S\rangle$.
+\end{definition}
+
+\section{U-layer corner state space and the corner projection}
+
+\subsection{U-layer corner labels and cycle notation}
+
+Let $\angleset=\{T_0,T_1,T_2,T_3\}$ be the set of U-layer corner \emph{positions}, and fix the concrete labeling
+\[
+(T_0,T_1,T_2,T_3)=(\mathrm{UFR},\mathrm{UBR},\mathrm{UBL},\mathrm{UFL}).
+\]
+Thus $S_4$ will act on $\angleset$ by permuting these four positions.
+
+\begin{definition}[$k$-cycles]
+A \emph{$k$-cycle} in $S_4$ is a permutation of the form $\cyc{i_1\,i_2\,\dots\,i_k}$ that sends
+$i_1\mapsto i_2\mapsto\cdots\mapsto i_k\mapsto i_1$ and fixes all other elements.
+In particular, a $3$-cycle has the form $\cyc{abc}$ and a $4$-cycle has the form $\cyc{abcd}$.
+\end{definition}
+
+\subsection{Corner coordinates}
+
+For $h\in H$, the induced action on the four U-layer corners determines:
+\begin{itemize}
+  \item a permutation $\tau_h\in S_4$ of the four positions;
+  \item a twist vector $t(h)=(t_0,t_1,t_2,t_3)\in(\Zthree)^4$ (twist increments of the corner cubies initially at $T_0,T_1,T_2,T_3$).
+\end{itemize}
+In the cubie model, corner twists satisfy a global sum constraint on all eight corners. Since elements of $H$ fix the four block corners in $B_C$ orientation-wise, those four twists are always $0$, so the constraint reduces to the four U-layer corners:
+\[
+t_0+t_1+t_2+t_3=0 \quad\text{in }\Zthree.
+\]
+Thus the natural twist space is
+\[
+(\Zthree)^4_{\sum=0}:=\{(t_0,t_1,t_2,t_3)\in(\Zthree)^4:\ \sum_i t_i=0\}.
+\]
+We parameterize it by three coordinates via the bijection
+\[
+\Theta:(\Zthree)^4_{\sum=0}\to(\Zthree)^3,\qquad
+\Theta(t_0,t_1,t_2,t_3)=(t_0,t_1,t_2),
+\]
+with $t_3=-(t_0+t_1+t_2)$ in $\Zthree$.
+
+\subsection{The semidirect product structure}
+
+Permuting corner positions reindexes twist coordinates, so the correct target group is a semidirect product.
+Define an embedding
+\[
+\iota:(\Zthree)^3\to(\Zthree)^4_{\sum=0},\qquad
+\iota(x_0,x_1,x_2)=(x_0,x_1,x_2,-x_0-x_1-x_2).
+\]
+Let $S_4$ act on $(\Zthree)^4_{\sum=0}$ by permuting the four coordinates according to the labeling
+$(0,1,2,3)$; denote this action by $\tau\cdot(\cdot)$. Explicitly, for $x=(x_0,x_1,x_2,x_3)$ we set $(\tau\cdot x)_i:=x_{\tau(i)}$, consistent with the left-to-right composition convention above. Pull it back to $(\Zthree)^3$ by
+\[
+\tau \star u \ :=\ \Theta\bigl(\tau\cdot \iota(u)\bigr)\in(\Zthree)^3.
+\]
+Define the group law on $S_4\times(\Zthree)^3$ by
+\[
+(\tau,u)\cdot(\sigma,v) \ :=\ (\tau\sigma,\ u+\tau\star v).
+\]
+This is the semidirect product group $S_4 \sdp (\Zthree)^3$.
+
+\subsection{Corner projection}
+
+\begin{definition}[Corner projection]
+Define
+\[
+\Phi:H\to S_4 \sdp (\Zthree)^3,\qquad
+\Phi(h):=\bigl(\tau_h,\ \Theta(t(h))\bigr).
+\]
+\end{definition}
+
+\begin{proposition}
+$\Phi$ is a group homomorphism.
+\end{proposition}
+\begin{proof}
+The permutation parts compose: $\tau_{h_1h_2}=\tau_{h_1}\tau_{h_2}$. For twists, the twist contributed by $h_2$
+is reindexed by $\tau_{h_1}$ under composition, yielding (in four coordinates)
+\[
+t(h_1h_2) = t(h_1) + \tau_{h_1}\cdot t(h_2).
+\]
+Applying $\Theta$ and using the definition of $\star$ gives
+\[
+\Theta(t(h_1h_2))=\Theta(t(h_1)) + \tau_{h_1}\star \Theta(t(h_2)),
+\]
+which matches the semidirect product law. Hence $\Phi(h_1h_2)=\Phi(h_1)\cdot\Phi(h_2)$.
+\end{proof}
+
+\section{A surjectivity criterion for the image}
+
+Fix $S\subseteq H$ and let
+\[
+K := \Phi(\langle S\rangle)\ \le\ S_4 \sdp (\Zthree)^3.
+\]
+Our step-level reachability goal is to prove $K = S_4 \sdp (\Zthree)^3$.
+
+\noindent Let $p:S_4\sdp(\Zthree)^3\to S_4$ be the projection $p(\tau,u)=\tau$. Its kernel is
+\[
+N := \ker(p)=\{(\id,u):u\in(\Zthree)^3\}\ \cong\ (\Zthree)^3,
+\]
+the \emph{twist-only} subgroup.
+
+\begin{lemma}[Conjugation formula]\label{lem:conj}
+For all $\tau\in S_4$ and $u\in(\Zthree)^3$,
+\[
+(\tau,0)\,(\id,u)\,(\tau,0)^{-1} = (\id,\tau\star u).
+\]
+More generally, conjugation by $(\tau,a)$ has the same effect on $N$.
+\end{lemma}
+\begin{proof}
+Using the multiplication rule $(\tau,a)(\sigma,b)=(\tau\sigma,\ a+\tau\star b)$ and the inverse
+$(\tau,a)^{-1}=\bigl(\tau^{-1},\ -\tau^{-1}\star a\bigr)$, we compute
+\[
+(\tau,0)(\id,u)=(\tau,\tau\star u),\qquad
+(\tau,\tau\star u)(\tau,0)^{-1}=(\tau,\tau\star u)(\tau^{-1},0)=(\id,\tau\star u).
+\]
+For the general case, the $a$-terms cancel:
+\[
+(\tau,a)(\id,u)(\tau,a)^{-1}
+=(\tau,a)(\id,u)\bigl(\tau^{-1},-\tau^{-1}\star a\bigr)
+=(\id,\tau\star u).
+\]
+\end{proof}
+
+\begin{proposition}[Semidirect-product criterion]\label{prop:criterion}
+Let $K\le S_4 \sdp (\Zthree)^3$, and let $p: S_4\sdp(\Zthree)^3\to S_4$ be the projection $p(\tau,u)=\tau$.
+Assume that:
+\begin{enumerate}
+  \item $p(K)=S_4$;
+  \item $K$ contains $(\id,e)$ for some $e\neq 0$ such that the $S_4$-orbit $\{\tau\star e:\tau\in S_4\}$
+  generates $(\Zthree)^3$.
+\end{enumerate}
+Then $K = S_4 \sdp (\Zthree)^3$.
+\end{proposition}
+
+\begin{proof}
+Let
+\[
+N := \ker(p)=\{(\id,u):u\in(\Zthree)^3\}\ \cong\ (\Zthree)^3
+\]
+be the twist-only subgroup. By assumption (2), $(\id,e)\in K\cap N$.
+Since $p(K)=S_4$, for each $\tau\in S_4$ we may choose some lift $(\tau,a_\tau)\in K$.
+By Lemma~\ref{lem:conj}, conjugation by $(\tau,a_\tau)$ acts on $N$ as $u\mapsto \tau\star u$, hence
+\[
+(\id,\tau\star e) = (\tau,a_\tau)\,(\id,e)\,(\tau,a_\tau)^{-1}\ \in\ K\cap N.
+\]
+Therefore $K\cap N$ contains the subgroup generated by $\{\tau\star e:\tau\in S_4\}$, which equals all of $(\Zthree)^3$
+by assumption (2). Hence $K\cap N=N$.
+
+\noindent Now let $(\tau,u)\in S_4\sdp(\Zthree)^3$ be arbitrary. Choose a lift $(\tau,a)\in K$ (possible since $p(K)=S_4$).
+Because $\star$ is induced by permuting coordinates, $\tau\star(\cdot)$ is an automorphism of $(\Zthree)^3$ with inverse
+$\tau^{-1}\star(\cdot)$. Set
+\[
+v := \tau^{-1}\star(u-a)\in(\Zthree)^3.
+\]
+Since $K\cap N=N$, we have $(\id,v)\in K$, and therefore
+\[
+(\tau,a)\,(\id,v) = (\tau,\ a+\tau\star v) = (\tau,\ a+(u-a)) = (\tau,u)\in K.
+\]
+Thus $K$ is the whole semidirect product.
+\end{proof}
+
+\begin{lemma}[Orbit generation for a difference vector]\label{lem:orbit}
+Let $e=(2,0,1)\in(\Zthree)^3$. Then the $S_4$-orbit of $e$ under $\star$ generates $(\Zthree)^3$.
+\end{lemma}
+\begin{proof}
+View $e$ in four coordinates via $\iota$:
+\[
+\iota(e)=(2,0,1,0)\in(\Zthree)^4_{\sum=0}.
+\]
+Permuting the four coordinates by elements of $S_4$ yields all vectors obtained by relocating the two nonzero entries.
+In particular, there exist $\tau_0,\tau_1,\tau_2\in S_4$ sending the nonzero entry $1$ to the fourth coordinate while
+keeping the other nonzero entry among the first three coordinates; explicitly, the orbit contains vectors of the form
+\[
+(2,0,0,1),\quad (0,2,0,1),\quad (0,0,2,1)\in(\Zthree)^4_{\sum=0}.
+\]
+Applying $\Theta$ gives
+\[
+(2,0,0),\quad (0,2,0),\quad (0,0,2)\in(\Zthree)^3.
+\]
+Since $2$ is a unit in $\Zthree$, these three vectors generate the standard basis of $(\Zthree)^3$, hence generate
+all of $(\Zthree)^3$. Therefore the $S_4$-orbit of $e$ generates $(\Zthree)^3$.
+\end{proof}
+
+\section{Choice of allowed steps, explicit macro moves, and the main theorem}
+
+We adopt the following choice of allowed steps:
+\[
+S = \{U,\ A,\ T\}\subseteq H,
+\]
+where $U$ is the U-face quarter turn, and $A,T$ are block-preserving macro moves.
+
+\subsection{Move-word conventions}
+\label{sec:conventions}
+
+We use standard Singmaster notation for face turns ($U,D,L,R,F,B$) and their inverses ($U',D',\dots$), with $X^2$ denoting
+a half-turn. A word such as $XY$ denotes performing $X$ followed by $Y$ (left-to-right execution), consistent with the conventions fixed in Section~2.
+The inverse word $w^{-1}$ is obtained by reversing the order and inverting each face turn.
+
+\subsection{Explicit macro moves}
+
+\begin{definition}[Macro moves used in Scheme $S$]\label{def:macros}
+Define the following words in face turns:
+\[
+A := R^2 B^2 R F R' B^2 R F' R,
+\qquad
+f := R' D R D' R' D R,
+\]
+\[
+W := f\,U\,f^{-1}\,U',
+\qquad
+T := W^{-1}\,A\,W\,A^{-1}.
+\]
+\end{definition}
+
+\begin{lemma}\label{lem:U}
+$U\in H$ and $\Phi(U)=(\tau_U,0)$ where $\tau_U$ is a $4$-cycle (hence an odd permutation).
+More precisely, with $(T_0,T_1,T_2,T_3)=(\mathrm{UFR},\mathrm{UBR},\mathrm{UBL},\mathrm{UFL})$,
+\[
+\tau_U=\cyc{0123}.
+\]
+\end{lemma}
+\begin{proof}
+$U$ acts only on the U layer, and does not move or reorient any cubie in the two Roux blocks (which lie in the D and
+middle layers), hence $U\in H$. On the four U-layer corners it induces the $4$-cycle
+$\cyc{0123}$, and in the standard cubie convention the U-turn contributes zero corner twist.
+Therefore $\Phi(U)=(\tau_U,0)$.
+\end{proof}
+
+\begin{lemma}\label{lem:A}
+The macro move $A$ of Definition~\ref{def:macros} lies in $H$ and satisfies
+\[
+\Phi(A)=\bigl(\cyc{012},\,0\bigr).
+\]
+\end{lemma}
+\begin{proof}
+This is a finite verification in the standard cubie model (see Appendix~A--C for a tracking checklist and a reproducible record).
+One checks that $A$ fixes each cubie in $B_C\cup B_E$ pointwise and orientation-wise, hence $A\in H$.
+Restricting to the four U-layer corner positions $(T_0,T_1,T_2,T_3)=(\mathrm{UFR},\mathrm{UBR},\mathrm{UBL},\mathrm{UFL})$,
+one verifies that $A$ induces the $3$-cycle $\cyc{012}$ and produces zero corner twist increments on all four U-corners.
+Thus $\Phi(A)=\bigl(\cyc{012},0\bigr)$.
+\end{proof}
+
+\begin{lemma}\label{lem:S4gen}
+Let $a=\cyc{012}$ and $b=\cyc{0123}$ in $S_4$. Then $\langle a,b\rangle = S_4$.
+\end{lemma}
+\begin{proof}
+Conjugating $a$ by powers of $b$ yields
+\[
+bab^{-1}=\cyc{123},\qquad b^2ab^{-2}=\cyc{023},\qquad b^3ab^{-3}=\cyc{013}.
+\]
+Hence the subgroup $G:=\langle a,b\rangle$ contains the $3$-cycles $\cyc{012}$ and $\cyc{013}$, so the even subgroup
+$G\cap A_4$ acts transitively on $\{0,1,2,3\}$. Indeed, the orbit of $0$ under $\langle\cyc{012},\cyc{013}\rangle$ contains $1$ (via $\cyc{013}$), $2$ (via $\cyc{012}$), and $3$ (via $\cyc{013}^2$).
+Moreover, the stabilizer of $0$ in $G\cap A_4$ contains $\cyc{123}$ (of order $3$), so by orbit--stabilizer
+\[
+|G\cap A_4|\ \ge\ 4\cdot 3\ =\ 12.
+\]
+Since $G\cap A_4\le A_4$ and $|A_4|=12$, we conclude $G\cap A_4=A_4$.
+Finally, $b$ is an odd permutation, so $G$ is not contained in $A_4$; therefore $G=S_4$.
+\end{proof}
+
+\begin{lemma}\label{lem:T}
+The macro move $T$ of Definition~\ref{def:macros} lies in $H$ and satisfies
+\[
+\Phi(T)=\bigl(\id,\,(2,0,1)\bigr).
+\]
+Equivalently, in four twist coordinates one has $t(T)=(2,0,1,0)\in(\Zthree)^4_{\sum=0}$.
+\end{lemma}
+\begin{proof}
+Again this is a finite verification in the standard cubie model (see Appendix~A--C for a tracking checklist and a reproducible record).
+One checks that $T$ fixes each cubie in $B_C\cup B_E$ pointwise and orientation-wise, hence $T\in H$.
+On the four U-layer corners it induces the identity permutation, and its corner twist increments (in the order
+$\mathrm{UFR},\mathrm{UBR},\mathrm{UBL},\mathrm{UFL}$) are $(2,0,1,0)$.
+Applying $\Theta$ yields $\Theta(t(T))=(2,0,1)$, hence $\Phi(T)=\bigl(\id,(2,0,1)\bigr)$.
+\end{proof}
+
+\begin{remark}[On verification and independent checking]\label{rem:verification}
+Lemmas~\ref{lem:A} and~\ref{lem:T} require only a finite computation of the induced action on specified cubies.
+They may be verified by hand tracking (e.g.\ via a tracking table) or by a short script implementing the standard
+cubie model (for example, \texttt{code/full\_cubie\_tracking.py} in the accompanying repository).
+The main argument of this paper does not rely on any computer assistance beyond this explicit verification.
+\end{remark}
+
+\begin{theorem}[Step-level reachability of U-layer corners]\label{thm:main}
+With $S=\{U,A,T\}$ as above,
+\[
+\Phi(\langle U,A,T\rangle)\ =\ S_4 \sdp (\Zthree)^3.
+\]
+In particular, the number of step-level reachable U-layer corner states equals
+\[
+|S_4|\cdot |(\Zthree)^3| = 24\cdot 27 = 648.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $K:=\Phi(\langle U,A,T\rangle)\le S_4\sdp(\Zthree)^3$. By Lemmas~\ref{lem:U} and~\ref{lem:A}, the projection $p(K)\le S_4$
+contains $\tau_U=\cyc{0123}$ and $\tau_A=\cyc{012}$. By Lemma~\ref{lem:S4gen} we have $p(K)=S_4$.
+
+\noindent By Lemma~\ref{lem:T}, $K$ contains $(\id,e)$ with $e=(2,0,1)$. Lemma~\ref{lem:orbit} shows that the $S_4$-orbit
+$\{\tau\star e:\tau\in S_4\}$ generates $(\Zthree)^3$.
+Therefore Proposition~\ref{prop:criterion} implies $K=S_4\sdp(\Zthree)^3$.
+\end{proof}
+
+\section{Appendix (optional): Verification record}
+
+\subsection*{A. Tracking checklist}
+To verify $A,T\in H$ and compute $\Phi(A),\Phi(T)$, it suffices to record:
+\begin{itemize}
+  \item \textbf{Block fixation:} for each $c\in B_C$ and $e\in B_E$, confirm $\pi_C(\cdot)(c)=c$, $\omega_C(\cdot)(c)=0$,
+  and $\pi_E(\cdot)(e)=e$, $\omega_E(\cdot)(e)=0$.
+  \item \textbf{Top-corner permutation:} track the images of $T_0,T_1,T_2,T_3$.
+  \item \textbf{Top-corner twists:} track twist increments of the four U-corners and convert to three coordinates via $\Theta$.
+\end{itemize}
+
+\subsection*{B. Example computed outcomes (one-line record)}
+For the words in Definition~\ref{def:macros}, the induced actions on U-layer corners are:
+\[
+\Phi(A)=\bigl(\cyc{012},0\bigr),\qquad
+\Phi(U)=\bigl(\cyc{0123},0\bigr),\qquad
+\Phi(W)=\bigl(\id,(1,0,0)\bigr),\qquad
+\Phi(T)=\bigl(\id,(2,0,1)\bigr),
+\]
+and $A,U,W,T$ preserve $B_C\cup B_E$ pointwise and orientation-wise.
+
+\subsection*{C. Reproducible verification (script)}
+As discussed in Remark~\ref{rem:verification}, we provide a reference implementation in the repository
+(file \texttt{code/full\_cubie\_tracking.py}).
+
+\medskip
+\noindent Running the following command from the repository root reproduces the one-line outcomes recorded in Appendix~B:
+\begin{verbatim}
+python3 code/full_cubie_tracking.py
+\end{verbatim}
+
+\noindent The SHA-256 hash of \texttt{code/full\_cubie\_tracking.py} at the time of writing is:
+\begin{verbatim}
+c4757602ce0c19435443462df1a7ab1896c38a2d203eaab780f8ae6d5400f702
+\end{verbatim}
+
+
+\noindent\emph{Note.} The script is provided purely as a convenience for checking these explicit finite computations;
+the group-theoretic proof of Theorem~\ref{thm:main} does not rely on any computer assistance beyond this verification.
+
+\bigskip
+\noindent\textbf{Acknowledgement.}
+This note emphasizes the structural separation between (i) a group-theoretic surjectivity argument and (ii) the explicit
+construction/verification of a small set of macro moves.
+
+\end{document}
